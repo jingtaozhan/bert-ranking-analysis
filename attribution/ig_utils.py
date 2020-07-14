@@ -4,14 +4,15 @@ from sty import fg, rs, Style, RgbFg
 
 def get_ig_attributions(trunc_layer, model, tokenizer, query_tokens, para_tokens, label, 
         batch_size, device, attr_segment, begin_num_reps,
-        max_reps, max_allowed_error, debug):
+        max_reps, max_allowed_error, max_query_length, max_seq_length, debug):
     integrated_gradients, input_ids, baseline_prediction, prediction, error_percentage, num_reps = \
         _compute_ig(attr_segment=attr_segment, trunc_layer=trunc_layer, model=model, 
             tokenizer=tokenizer, query_tokens=query_tokens, 
             para_tokens=para_tokens, label=label, begin_num_reps=begin_num_reps, 
             batch_size=batch_size, device=device, 
             max_allowed_error=max_allowed_error, 
-            max_reps=max_reps, debug=debug)
+            max_reps=max_reps, max_query_length=max_query_length, 
+            max_seq_length=max_seq_length, debug=debug)
 
     integrated_gradients = _project_attributions(tokenizer,
         input_ids, integrated_gradients)
@@ -53,10 +54,8 @@ def visualize_token_attrs(tokens, attrs):
     return color_text
 
 
-def transform_input(tokenizer, query_tokens, para_tokens, label, device):
-    max_seq_length = 256
-    max_query_tokens_len = 64
-    query_tokens = query_tokens[:max_query_tokens_len]
+def transform_input(tokenizer, query_tokens, para_tokens, label, device, max_query_length, max_seq_length):
+    query_tokens = query_tokens[:max_query_length]
     max_para_tokens_len = max_seq_length - 3 - len(query_tokens)
     para_tokens = para_tokens[:max_para_tokens_len]
     input_tokens = ['[CLS]'] + query_tokens + ['[SEP]'] + para_tokens + ['[SEP]']
@@ -78,12 +77,12 @@ def transform_input(tokenizer, query_tokens, para_tokens, label, device):
             torch.LongTensor([label]).to(device))
 
 
-def generate_baseline(attr_segment, tokenizer, query_tokens, para_tokens, label, device):
+def generate_baseline(attr_segment, tokenizer, query_tokens, para_tokens, label, device, max_query_length, max_seq_length):
     if attr_segment == "all" or attr_segment == "query":
         query_tokens = ["[PAD]"] * len(query_tokens)
     if attr_segment == "all" or attr_segment == "para":
         para_tokens = ["[PAD]"] * len(para_tokens)
-    return transform_input(tokenizer, query_tokens, para_tokens, label, device)
+    return transform_input(tokenizer, query_tokens, para_tokens, label, device, max_query_length, max_seq_length)
 
 
 def _project_attributions(tokenizer, input_ids, attributions):
@@ -135,12 +134,12 @@ def _calculate_integral(ig):
     return integral
 
 
-def _compute_ig(attr_segment, trunc_layer, model, tokenizer, query_tokens, para_tokens, label, begin_num_reps, batch_size, device, max_allowed_error, max_reps, debug):
+def _compute_ig(attr_segment, trunc_layer, model, tokenizer, query_tokens, para_tokens, label, begin_num_reps, batch_size, device, max_allowed_error, max_reps, max_query_length, max_seq_length, debug):
     for name, param in model.named_parameters():
         param.requires_grad = False
     model.eval()
 
-    origin_input = transform_input(tokenizer, query_tokens, para_tokens, label, device)
+    origin_input = transform_input(tokenizer, query_tokens, para_tokens, label, device, max_query_length, max_seq_length)
     input_ids, attention_mask, token_type_ids, _ = origin_input
     attention_mask = attention_mask.unsqueeze(0)
     token_type_ids = token_type_ids.unsqueeze(0)

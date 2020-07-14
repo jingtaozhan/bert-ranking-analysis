@@ -39,6 +39,8 @@ def run_certain_layer(gpu_queue, args, trunc_layer, outputpath):
                     device=device, attr_segment=args.attr_segment, 
                     max_reps=args.max_reps, begin_num_reps=args.begin_num_reps,
                     max_allowed_error=args.max_allowed_error,
+                    max_query_length=args.max_query_length, 
+                    max_seq_length=args.max_seq_length,
                     debug=args.debug)
             tokens, attributes = ig['outputs']
             if args.show_details:
