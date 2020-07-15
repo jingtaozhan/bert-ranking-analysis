@@ -87,6 +87,16 @@ def pack_tensor_2D(lstlst, default, dtype):
     return tensor
 
 
+def pack_tensor_3D(lstmat, default, dtype):
+    batch_size = len(lstmat)
+    length0 = max(mat.shape[0] for mat in lstmat)
+    length1 = max(mat.shape[1] for mat in lstmat)
+    tensor = default * torch.ones((batch_size, length0, length1), dtype=dtype)
+    for i, mat in enumerate(lstmat):
+        tensor[i, :mat.shape[0], :mat.shape[1]] = torch.tensor(mat, dtype=dtype)
+    return tensor
+
+    
 def get_collate_function():
     def collate_function(batch):
         input_ids_lst = [x["query_input_ids"] + x["passage_input_ids"] for x in batch]
