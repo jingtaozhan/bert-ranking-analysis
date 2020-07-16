@@ -23,10 +23,6 @@ logging.basicConfig(format = '%(asctime)s-%(levelname)s-%(name)s- %(message)s',
 
 
 def evaluate(args, model, tokenizer, prefix=""):
-    eval_output_dir = args.output_dir
-    if not os.path.exists(eval_output_dir):
-        os.makedirs(eval_output_dir)
-
     eval_dataset = TopNDataset(args.topN_file, tokenizer, "dev.small", args.msmarco_dir, 
         args.collection_memmap_dir, args.tokenize_dir, 
         args.max_query_length, args.max_seq_length)
@@ -83,7 +79,6 @@ def main():
     parser.add_argument("--msmarco_dir", type=str, default="./data/msmarco-passage")
     parser.add_argument("--collection_memmap_dir", type=str, default="./data/collection_memmap")
     parser.add_argument("--tokenize_dir", type=str, default="./data/tokenize")
-    parser.add_argument("--output_dir", type=str, default="./data/attention")
     parser.add_argument("--max_query_length", type=int, default=64)
     parser.add_argument("--max_seq_length", type=int, default=256)
 
