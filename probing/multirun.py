@@ -31,7 +31,7 @@ if __name__ == "__main__":
 
     if args.save_train_embed:
         subprocess.check_call(["python", "-m", "probing.save_embed", 
-            "--keys"] + args.keys [+ "--rank_file", args.train_rank_file,
+            "--keys"] + args.keys + ["--rank_file", args.train_rank_file,
             "--mode", "train",
             "--gpu", str(args.gpus[0])])
     
