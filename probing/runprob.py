@@ -30,7 +30,7 @@ def set_seed(args):
         torch.cuda.manual_seed_all(args.seed)
 
 
-def train(args, train_dataset, model):
+def train(args, model):
     """ Train the model """
     if not os.path.exists(args.log_dir):
         os.makedirs(args.log_dir)
@@ -94,7 +94,6 @@ def train(args, train_dataset, model):
                 avg_loss = (tr_loss - logging_loss)/args.logging_steps
                 tb_writer.add_scalar('loss', avg_loss, global_step)
                 logging_loss = tr_loss
-                logger.info("global_step: {}  loss: {:.3f}".format(global_step, avg_loss))
             '''
             if global_step > 3000:
                 print("debug")
@@ -150,7 +149,7 @@ def main():
     parser.add_argument("--max_token_num", type=int, default=20)
     parser.add_argument("--msmarco_dir", type=str, default="./data/msmarco-passage")
     parser.add_argument("--eval_output_root", type=str, default="./data/probing/eval")
-    parser.add_argument("--model_output_root", type=str, default="./data/probing/trained_models")
+    parser.add_argument("--model_output_root", type=str, default="./data/probing/models")
     parser.add_argument("--log_root", type=str, default="./data/probing/log")
     parser.add_argument("--embd_root", type=str, default="./data/probing/embed")
 
@@ -211,10 +210,10 @@ def main():
         global_step, tr_loss = train(args, model)
         logger.info(f"Saving model checkpoint to {model_save_path}")
         torch.save(model.state_dict(), model_save_path)
-        torch.save(args, model_save_path)
 
     # Load a trained model 
     if args.do_eval:
+        print(model_save_path)
         model = EmbeddingProb(args.hidden_size, args.max_token_num, dropout_prob=0.0)
         model.load_state_dict(torch.load(model_save_path))
         model.to(args.device)
