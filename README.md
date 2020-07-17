@@ -1,6 +1,6 @@
 # An Analysis of BERT in Document Ranking
 
-To increase the explainability of the ranking process performed by BERT, we investigate a state-of-the-art [BERT-based ranking model](https://arxiv.org/abs/1901.04085) with focus on its attention mechanism and interaction behavior. 
+To increase the explainability of the ranking process performed by BERT, we investigate a state-of-the-art BERT-based ranking model with focus on its attention mechanism and interaction behavior. 
 
 Firstly, we look into the evolving of the attention distribution. It shows that in each step, BERT dumps redundant attention weights on tokens with high document frequency (such as periods). This may lead to a potential threat to the model robustness and should be considered in future studies. 
 Secondly, we study how BERT models interactions between query and document and find that BERT aggregates document information to query token representations through their interactions, but extracts query-independent representations for document tokens. It indicates that it is possible to transform BERT into a more efficient representation-focused model. 
@@ -67,7 +67,7 @@ python -m attpattern.draw
 ## Probing
 We use `probing.sample_traindata` to sample training query-passage pairs from MSMARCO training set. It is provided at [./data/sample.train.tsv](https://github.com/jingtaozhan/bert-ranking-analysis/blob/master/data/sample.train.tsv) so you do not need run this script. The top50 Document Frequency tokens are regarded as stop words. The DF file is also provided at [./data/wordpiece.df.json](https://github.com/jingtaozhan/bert-ranking-analysis/blob/master/data/wordpiece.df.json).
 
-To train probing classifiers, we use `probing.save_embed` to computes and saves the intermediate representations in the training set and use `probing.runprob` to train. As for the evaluation, we use `probing.save_embed` to computes and saves the intermediate representations in the dev set. We call `probing.runprob` to load the trained probing classifiers to predict.
+To train probing classifiers, we use `probing.save_embed` to compute and save the intermediate representations in the training set and use `probing.runprob` to train. As for the evaluation, we use `probing.save_embed` to compute and save the intermediate representations in the dev set. We call `probing.runprob` to load the trained probing classifiers to predict.
 
 Take periods for example, you can run the following commad:
 
@@ -81,7 +81,6 @@ python -m probing.runprob --key periods_in_passage --gpu 2 --do_train --layer 11
 % The training data consumes much storage space, you may consider deleting them at ./data/probing/embed/train
 % The trained models are saved at ./data/probing/models
 
-python -m attpattern.draw
 python -m probing.save_embed --keys periods_in_passage --rank_file ./data/anserini.dev.small.top100.tsv \
        --mode dev.small --gpu 0 % It will save period representations of all layers
 python -m probing.runprob --key periods_in_passage --gpu 0 --do_eval --layer 0
@@ -97,7 +96,7 @@ It is quite boring to run so many commands, thus you can directly run a wrapped 
 ```bash
 python -m attribution.multirun --save_train_embed --do_train --save_eval_embed --do_eval \
        --keys periods_in_passage --gpus 0 1 2 3 --layers 0 1 2 3 4 5 6 7 8 9 10 11
-% For [CLS] tokens, the --layers argument should be set to 0 1 2 3 4 5 6 7 8 9 10 11 12
+% For [CLS] tokens (--key cls), the --layers argument should be 0 1 2 3 4 5 6 7 8 9 10 11 12
 ```
 
 We also provide our [trained probing classifiers](https://drive.google.com/file/d/1LN8uRk2t8T8SwfrykRneLnDXRJjBMVu_/view?usp=sharing). You can download it and unzip to `./data/probing/models`. Thus, you do not need to save the representations of training set nor train the probing classifiers. The command should be:
@@ -105,14 +104,15 @@ We also provide our [trained probing classifiers](https://drive.google.com/file/
 ```bash
 python -m attribution.multirun --save_eval_embed --do_eval \
        --keys periods_in_passage --gpus 0 1 2 3 --layers 0 1 2 3 4 5 6 7 8 9 10 11
-% For [CLS] tokens, the --layers argument should be set to 0 1 2 3 4 5 6 7 8 9 10 11 12
+% For [CLS] tokens (--key cls), the --layers argument should be 0 1 2 3 4 5 6 7 8 9 10 11 12
 ```
 
-Once you finish running all kinds of tokens, namely `cls`, `seps`, `periods_in_passage`, `all_query_tokens`, 
-        `rand_passage_tokens`, `stopwords_in_passage`, `query_tokens_in_passage`, you can plot the figure:
+Once you finish running all kinds of tokens, namely `cls`, `seps`, `periods_in_passage`, `all_query_tokens`, `rand_passage_tokens`, `stopwords_in_passage`, `query_tokens_in_passage`, you can plot the figure:
+
 ```bash
 python -m attribution.draw
 ```
+
 The figure is saved to `./data/probing.pdf`
 
 ## Mask
