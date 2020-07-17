@@ -1,16 +1,19 @@
 # An Analysis of BERT in Document Ranking
 
 To increase the explainability of the ranking process performed by BERT, we investigate a state-of-the-art [BERT-based ranking model](https://arxiv.org/abs/1901.04085) with focus on its attention mechanism and interaction behavior. 
+
 Firstly, we look into the evolving of the attention distribution. It shows that in each step, BERT dumps redundant attention weights on tokens with high document frequency (such as periods). This may lead to a potential threat to the model robustness and should be considered in future studies. 
 Secondly, we study how BERT models interactions between query and document and find that BERT aggregates document information to query token representations through their interactions, but extracts query-independent representations for document tokens. It indicates that it is possible to transform BERT into a more efficient representation-focused model. 
 
 These findings help us better understand the ranking process by BERT and may inspire future improvement. For more details, check out our paper:
 + Zhan et al.  [An Analysis of BERT in Document Ranking](http://www.thuir.cn/group/~YQLiu/publications/SIGIR2020Zhan.pdf)
 
+Note that the legend of Figure 1 (left) in our submitted SIGIR2020 short paper is wrong. Here is the [correct Figure](https://github.com/jingtaozhan/bert-ranking-analysis/blob/master/example_figures/avg_att.pdf).
+
 In the following, we present instructions on how to replicate our experimental results.
 
 ## Prepare
-Our implementation is based on Pytorch. Make sure you already installed [🤗 Transformers](https://github.com/huggingface/transformers):
+Our implementation is based on Pytorch. Make sure you already installed [🤗Transformers](https://github.com/huggingface/transformers):
 
 ```bash
 pip install transformers
@@ -40,6 +43,8 @@ python convert_collection_to_memmap.py
 
 We adopt the [BERT_Base_trained_on_MSMARCO.zip](https://drive.google.com/file/d/1cyUrhs7JaCJTTu-DjFUqP6Bs4f8a6JTX/view) model provided by [Passage Re-ranking with BERT](https://github.com/nyu-dl/dl4marco-bert). Please download and unzip to directory `./data/BERT_Base_trained_on_MSMARCO`.
 
+We utilize [Anserini](https://github.com/castorini/anserini) to retrieve top100 candidates for queries in dev set. The result is provided at [./data/anserini.dev.small.top100.tsv](https://github.com/jingtaozhan/bert-ranking-analysis/blob/master/data/anserini.dev.small.top100.tsv).
+
 ## Attention Pattern
 We firstly save the attention map to disk and then draw the attention distribution. We find no significant difference in attention distribution between relevant query-passage pairs and irrelevant ones. In this public implemantation, `attpattern.save_att` only considers the relevant ones.
 
@@ -60,7 +65,7 @@ python -m attpattern.draw
 ```
 
 ## Probing
-We use `probing.sample_traindata` to sample training query-passage pairs from MSMARCO training set. It is provided at `./data/sample.train.tsv` so you do not need run this script. 
+We use `probing.sample_traindata` to sample training query-passage pairs from MSMARCO training set. It is provided at [./data/sample.train.tsv](https://github.com/jingtaozhan/bert-ranking-analysis/blob/master/data/sample.train.tsv) so you do not need run this script. The top50 Document Frequency tokens are regarded as stop words. The DF file is also provided at [./data/wordpiece.df.json](https://github.com/jingtaozhan/bert-ranking-analysis/blob/master/data/wordpiece.df.json).
 
 To train probing classifiers, we use `probing.save_embed` to computes and saves the intermediate representations in the training set and use `probing.runprob` to train. As for the evaluation, we use `probing.save_embed` to computes and saves the intermediate representations in the dev set. We call `probing.runprob` to load the trained probing classifiers to predict.
 
