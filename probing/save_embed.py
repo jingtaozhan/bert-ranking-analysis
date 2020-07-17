@@ -135,7 +135,7 @@ def main():
         "rand_passage_tokens", "stopwords_in_passage", "query_tokens_in_passage"])
     parser.add_argument("--rank_file", type=str, required=True)
     parser.add_argument("--mode", type=str, choices=["train", "dev.small"], required=True)
-    parser.add_argument("--idf_path", type=str, default="./data/wordpiece.idf.json")
+    parser.add_argument("--idf_path", type=str, default="./data/wordpiece.df.json")
 
     parser.add_argument("--output_root", type=str, default="./data/probing/embed")
     parser.add_argument("--msmarco_dir", type=str, default="./data/msmarco-passage")
