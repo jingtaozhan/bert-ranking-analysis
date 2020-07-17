@@ -71,8 +71,8 @@ if __name__ == "__main__":
 
     ## Required parameters
     parser.add_argument("--gpus", nargs="+", required=True)
-    parser.add_argument("--trunc_layers", nargs="+", type=int, default=None)
     parser.add_argument("--attr_segment", choices=["query", "para"], required=True)
+    parser.add_argument("--trunc_layers", nargs="+", type=int, default=list(range(13)))
     parser.add_argument("--output_root", type=str, default="./data/attribution")
 
     parser.add_argument("--batch_size", default=8, type=int)
@@ -102,10 +102,9 @@ if __name__ == "__main__":
         gpu_queue.put_nowait(gpu)
 
     pool = Pool(len(args.gpus))
-    trunc_layer_lst = list(range(13)) if args.trunc_layers is None else args.trunc_layers
     arguments = [(gpu_queue, args, trunc_layer, 
             f"{args.output_dir}/layer_{trunc_layer}.json") 
-            for trunc_layer in trunc_layer_lst]
+            for trunc_layer in args.trunc_layers]
     pool.starmap(run_certain_layer, arguments)
     pool.close()
     pool.join()
