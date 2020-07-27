@@ -5,8 +5,8 @@ To increase the explainability of the ranking process performed by BERT, we inve
 Firstly, we look into the evolving of the attention distribution. It shows that in each step, BERT dumps redundant attention weights on tokens with high document frequency (such as periods). This may lead to a potential threat to the model robustness and should be considered in future studies. 
 Secondly, we study how BERT models interactions between query and document and find that BERT aggregates document information to query token representations through their interactions, but extracts query-independent representations for document tokens. It indicates that it is possible to transform BERT into a more efficient representation-focused model. 
 
-These findings help us better understand the ranking process by BERT and may inspire future improvement. For more details, check out our paper:
-+ Zhan et al.  [An Analysis of BERT in Document Ranking](http://www.thuir.cn/group/~YQLiu/publications/SIGIR2020Zhan.pdf)
+These findings help us better understand the ranking process by BERT and may inspire future improvement. For more details, check out our SIGIR2020 paper:
++ Zhan et al.  [An Analysis of BERT in Document Ranking](https://dl.acm.org/doi/pdf/10.1145/3397271.3401325)
 
 Note that the legend of Figure 1 (left) in our submitted SIGIR2020 short paper is wrong. Here is the [correct Figure](https://github.com/jingtaozhan/bert-ranking-analysis/blob/master/example_figures/avg_att.pdf).
 
